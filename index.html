@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPI Routine Finder</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --accent: #64748b;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 { font-size: 1.5rem; color: var(--primary); margin-bottom: 5px; }
+        p { font-size: 0.9rem; color: var(--accent); margin: 0; }
+
+        /* Filter Section */
+        .filters {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--accent);
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        select:focus { border-color: var(--primary); }
+
+        /* Results Section */
+        #routine-display {
+            display: grid;
+            gap: 15px;
+        }
+
+        .exam-card {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 12px;
+            border-left: 5px solid var(--primary);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+
+        .exam-date {
+            font-weight: bold;
+            color: var(--primary);
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .subject-name {
+            font-size: 1.1rem;
+            margin: 8px 0;
+            font-weight: 600;
+        }
+
+        .meta-info {
+            font-size: 0.85rem;
+            color: var(--accent);
+            display: flex;
+            gap: 15px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--accent);
+        }
+
+        @media (max-width: 480px) {
+            .filters { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>RPI Routine Finder</h1>
+        <p>Mid-Term Examination 2026</p>
+    </header>
+
+    <div class="filters">
+        <div>
+            <label>Semester</label>
+            <select id="semester-select">
+                <option value="">Select Semester</option>
+                <option value="3">3rd Semester</option>
+                <option value="5" selected>5th Semester</option>
+                <option value="7">7th Semester</option>
+            </select>
+        </div>
+        <div>
+            <label>Department</label>
+            <select id="dept-select">
+                <option value="">Select Dept</option>
+                <option value="Computer" selected>Computer</option>
+                <option value="Civil">Civil</option>
+                <option value="Electrical">Electrical</option>
+                <option value="Mechanical">Mechanical</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="routine-display">
+        </div>
+</div>
+
+<script>
+    // Data extracted from your provided images
+    const routineData = [
+        // 3rd Semester (9:00 AM)
+        { sem: "3", dept: "All", date: "04/06/2026", day: "Thursday", time: "9:00 AM", code: "25931", subject: "Mathematics-3" },
+        { sem: "3", dept: "Computer", date: "07/06/2026", day: "Sunday", time: "9:00 AM", code: "28531", subject: "Application Development Using Python" },
+        { sem: "3", dept: "Computer", date: "08/06/2026", day: "Monday", time: "9:00 AM", code: "26831", subject: "Digital Electronics-1" },
+        { sem: "3", dept: "Computer", date: "09/06/2026", day: "Tuesday", time: "9:00 AM", code: "25922", subject: "Physics-2" },
+        { sem: "3", dept: "Computer", date: "10/06/2026", day: "Wednesday", time: "9:00 AM", code: "25811", subject: "Social Science" },
+        { sem: "3", dept: "Computer", date: "11/06/2026", day: "Thursday", time: "9:00 AM", code: "28533", subject: "IT Support Services" },
+
+        // 5th Semester (2:00 PM)
+        { sem: "5", dept: "Computer", date: "04/06/2026", day: "Thursday", time: "2:00 PM", code: "28551", subject: "Computer Architecture & Microprocessor" },
+        { sem: "5", dept: "Computer", date: "07/06/2026", day: "Sunday", time: "2:00 PM", code: "28552", subject: "Data Communication" },
+        { sem: "5", dept: "Computer", date: "08/06/2026", day: "Monday", time: "2:00 PM", code: "25851", subject: "Accounting" },
+        { sem: "5", dept: "Computer", date: "09/06/2026", day: "Tuesday", time: "2:00 PM", code: "28553", subject: "Application Development using Java" },
+        { sem: "5", dept: "Computer", date: "10/06/2026", day: "Wednesday", time: "2:00 PM", code: "28554", subject: "Operating System" },
+        { sem: "5", dept: "Computer", date: "11/06/2026", day: "Thursday", time: "2:00 PM", code: "28555", subject: "Web Design & Development-2" },
+
+        // 7th Semester (12:00 PM)
+        { sem: "7", dept: "Computer", date: "04/06/2026", day: "Thursday", time: "12:00 PM", code: "27071", subject: "Multimedia & Animation" },
+        { sem: "7", dept: "Computer", date: "07/06/2026", day: "Sunday", time: "12:00 PM", code: "26671", subject: "Network Administration & Services" },
+        { sem: "7", dept: "Computer", date: "08/06/2026", day: "Monday", time: "12:00 PM", code: "28574", subject: "Apps Development Project" },
+        { sem: "7", dept: "Computer", date: "09/06/2026", day: "Tuesday", time: "12:00 PM", code: "28573", subject: "Cyber Security & Ethics" },
+        { sem: "7", dept: "Computer", date: "10/06/2026", day: "Wednesday", time: "12:00 PM", code: "28571", subject: "Digital Marketing Technique" },
+        { sem: "7", dept: "All", date: "11/06/2026", day: "Thursday", time: "12:00 PM", code: "25853", subject: "Innovation & Entrepreneurship" }
+    ];
+
+    const semSelect = document.getElementById('semester-select');
+    const deptSelect = document.getElementById('dept-select');
+    const display = document.getElementById('routine-display');
+
+    function updateRoutine() {
+        const sem = semSelect.value;
+        const dept = deptSelect.value;
+
+        if (!sem || !dept) {
+            display.innerHTML = '<div class="empty-state">Please select both Semester and Department to view the routine.</div>';
+            return;
+        }
+
+        const filtered = routineData.filter(item => 
+            item.sem === sem && (item.dept === dept || item.dept === "All")
+        );
+
+        if (filtered.length === 0) {
+            display.innerHTML = '<div class="empty-state">No data found for this selection.</div>';
+            return;
+        }
+
+        display.innerHTML = filtered.map(item => `
+            <div class="exam-card">
+                <div class="exam-date">
+                    <span>${item.date} (${item.day})</span>
+                    <span>${item.time}</span>
+                </div>
+                <div class="subject-name">${item.subject}</div>
+                <div class="meta-info">
+                    <span>Code: ${item.code}</span>
+                    <span>Dept: ${item.dept}</span>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    semSelect.addEventListener('change', updateRoutine);
+    deptSelect.addEventListener('change', updateRoutine);
+
+    // Initial load
+    updateRoutine();
+</script>
+
+</body>
+</html>
